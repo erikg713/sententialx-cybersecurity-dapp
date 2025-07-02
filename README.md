@@ -9,3 +9,12 @@ cd sententialx-cybersecurity-dapp
 git add .
 git commit -m "🎉 Initial commit: SentenialX Cybersecurity dApp"
 git push -u origin main
+
+# Install dependencies
+npm install
+
+# Copy environment file
+cp .env.example .env
+
+# Start development
+npm run dev
