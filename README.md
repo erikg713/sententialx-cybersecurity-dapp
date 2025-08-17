@@ -18,3 +18,37 @@ An advanced cyber defense platform scaffold, compliant with Pi Network Mainnet g
 - Pi-only transactions
 - No external redirects
 - Minimal data collection
+
+sentenial-x/
+ ├── frontend/ (React)
+ │   ├── src/
+ │   │   ├── App.js
+ │   │   ├── index.js
+ │   │   ├── api.js
+ │   │   ├── styles.css
+ │   │   └── components/
+ │   │       ├── Login.js
+ │   │       ├── Dashboard.js
+ │   │       ├── ThreatFeed.js
+ │   │       ├── Payments.js
+ │   │       └── KYC.js
+ │   └── package.json
+ ├── backend/ (Node.js + Express)
+ │   ├── server.js
+ │   ├── routes/
+ │   │   ├── auth.js
+ │   │   ├── payments.js
+ │   │   └── kyc.js
+ │   ├── controllers/
+ │   │   ├── authController.js
+ │   │   ├── paymentsController.js
+ │   │   └── kycController.js
+ │   ├── models/
+ │   │   └── UserSession.js
+ │   ├── middleware/
+ │   │   └── validateInput.js
+ │   ├── config/
+ │   │   └── db.js
+ │   └── package.json
+ ├── .env
+ └── README.md
