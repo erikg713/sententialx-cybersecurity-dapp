@@ -1,26 +1,22 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const connectDB = require('./config/db');
+
 const app = express();
+connectDB();
 
 app.use(cors());
+app.use(helmet());
 app.use(express.json());
+app.use(morgan('dev'));
 
-// Pi Authentication route placeholder
-app.post('/auth', (req, res) => {
-  console.log("Auth request received");
-  res.json({ message: 'Pi Authentication flow placeholder' });
-});
+// Routes
+app.use('/auth', require('./routes/auth'));
+app.use('/pay', require('./routes/payments'));
+app.use('/kyc', require('./routes/kyc'));
 
-// Pi Payments route placeholder
-app.post('/pay', (req, res) => {
-  console.log("Payment request received");
-  res.json({ message: 'Pi Payment flow placeholder' });
-});
-
-// KYC route placeholder
-app.post('/kyc', (req, res) => {
-  console.log("KYC submission received");
-  res.json({ message: 'KYC Verification flow placeholder' });
-});
-
-app.listen(5000, () => console.log('Backend running on port 5000'));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Backend running on port ${PORT}`));
