@@ -1,20 +1,20 @@
-. # sententialx-cybersecurity-dapp
-# Clone your empty repo
-git clone https://github.com/yourusername/sententialx-cybersecurity-dapp.git
-cd sententialx-cybersecurity-dapp
+# Sentenial X – Cyber Guardian
 
-# Copy all the files from the CodeProject above into your local directory
-# Then initialize and push:
+An advanced cyber defense platform scaffold, compliant with Pi Network Mainnet guidelines.
 
-git add .
-git commit -m "🎉 Initial commit: SentenialX Cybersecurity dApp"
-git push -u origin main
+## Features
+- Pi Authentication SDK login
+- Pi-only Payments
+- KYC Verification placeholder
+- Threat Dashboard (React UI)
+- Node.js backend (Express)
 
-# Install dependencies
-npm install
+## Run Instructions
+1. **Frontend**: `cd frontend && npm install && npm start`
+2. **Backend**: `cd backend && npm install && npm start`
 
-# Copy environment file
-cp .env.example .env
-
-# Start development
-npm run dev
+## Compliance
+- Pi Authentication only (no email/3rd party login)
+- Pi-only transactions
+- No external redirects
+- Minimal data collection
