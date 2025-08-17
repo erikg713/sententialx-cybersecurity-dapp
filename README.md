@@ -18,7 +18,7 @@ An advanced cyber defense platform scaffold, compliant with Pi Network Mainnet g
 - Pi-only transactions
 - No external redirects
 - Minimal data collection
-
+```
 sentenial-x/
  ├── frontend/ (React)
  │   ├── src/
@@ -52,3 +52,4 @@ sentenial-x/
  │   └── package.json
  ├── .env
  └── README.md
+```
