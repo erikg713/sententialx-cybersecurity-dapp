@@ -1,0 +1,31 @@
+ body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0a0f1c;
+  color: #f0f0f0;
+}
+
+.header {
+  text-align: center;
+  padding: 2rem;
+  background: #111827;
+  color: #38bdf8;
+}
+
+button {
+  background: #38bdf8;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  color: #0a0f1c;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.dashboard {
+  padding: 2rem;
+}
+
+.stats p {
+  margin: 0.5rem 0;
+}
