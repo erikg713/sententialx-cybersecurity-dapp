@@ -1,1 +1,9 @@
-
+fastapi
+uvicorn[standard]
+asyncpg
+databases
+pydantic
+torch
+deepspeed
+transformers
+deep_infra_sdk  # Placeholder for LLaMA integration
