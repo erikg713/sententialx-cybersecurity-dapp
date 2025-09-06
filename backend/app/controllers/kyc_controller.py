@@ -1,11 +1,4 @@
-exports.submitKYC = (req, res) => {
-  const { userId } = req.body;
-  console.log(`KYC submitted for ${userId}`);
-
-  // TODO: Integrate Pi KYC service
-  res.json({
-    success: true,
-    message: "KYC submission placeholder",
-    userId
-  });
-};
+# backend/app/controllers/kyc_controller.py
+async def submit_kyc(user_id: str, documents: dict):
+    # TODO: Integrate real KYC verification
+    return {"user_id": user_id, "status": "pending"}
