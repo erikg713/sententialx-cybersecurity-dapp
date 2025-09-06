@@ -20,36 +20,49 @@ An advanced cyber defense platform scaffold, compliant with Pi Network Mainnet g
 - Minimal data collection
 ```
 sentenial-x/
- ├── frontend/ (React)
- │   ├── src/
- │   │   ├── App.js
- │   │   ├── index.js
- │   │   ├── api.js
- │   │   ├── styles.css
- │   │   └── components/
- │   │       ├── Login.js
- │   │       ├── Dashboard.js
- │   │       ├── ThreatFeed.js
- │   │       ├── Payments.js
- │   │       └── KYC.js
- │   └── package.json
- ├── backend/ (Node.js + Express)
- │   ├── server.js
- │   ├── routes/
- │   │   ├── auth.js
- │   │   ├── payments.js
- │   │   └── kyc.js
- │   ├── controllers/
- │   │   ├── authController.js
- │   │   ├── paymentsController.js
- │   │   └── kycController.js
- │   ├── models/
- │   │   └── UserSession.js
- │   ├── middleware/
- │   │   └── validateInput.js
- │   ├── config/
- │   │   └── db.js
- │   └── package.json
- ├── .env
- └── README.md
-```
+├── frontend/                 # React frontend remains unchanged
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── index.js
+│   │   ├── api.js
+│   │   ├── styles.css
+│   │   └── components/
+│   │       ├── Login.js
+│   │       ├── Dashboard.js
+│   │       ├── ThreatFeed.js
+│   │       ├── Payments.js
+│   │       └── KYC.js
+│   └── package.json
+│
+├── backend/                  # Python FastAPI backend
+│   ├── app/
+│   │   ├── main.py           # FastAPI entrypoint
+│   │   ├── routes/
+│   │   │   ├── auth.py
+│   │   │   ├── payments.py
+│   │   │   ├── kyc.py
+│   │   │   └── ai_routes.py
+│   │   ├── controllers/
+│   │   │   ├── auth_controller.py
+│   │   │   ├── payments_controller.py
+│   │   │   ├── kyc_controller.py
+│   │   │   └── ai_controller.py
+│   │   ├── models/
+│   │   │   └── user_session.py
+│   │   ├── middleware/
+│   │   │   └── validate_input.py
+│   │   ├── config/
+│   │   │   └── db.py
+│   │   └── ai_core/          # Deep infra AI modules
+│   │       ├── __init__.py
+│   │       ├── predictive_model.py
+│   │       ├── wormgpt_detector.py
+│   │       ├── attack_simulator.py
+│   │       ├── threat_analyzer.py
+│   │       ├── embeddings_service.py
+│   │       └── utils.py
+│   ├── requirements.txt
+│   └── Dockerfile
+│
+├── .env
+└── README.md
