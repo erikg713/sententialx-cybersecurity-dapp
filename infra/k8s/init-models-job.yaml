@@ -1,1 +1,23 @@
-
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sentenialx-model-warmup
+  namespace: sentenialx
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: prefetch
+        image: your-docker-repo/sentenialx-modelserver:latest
+        command: ["python", "/srv/services/model_server/../..//scripts/prefetch_models.py"]
+        env:
+          - name: MODEL_DIR
+            value: "/models"
+        volumeMounts:
+          - name: models
+            mountPath: /models
+      volumes:
+        - name: models
+          persistentVolumeClaim:
+            claimName: sentenialx-models-pvc
