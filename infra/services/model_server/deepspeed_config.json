@@ -1,1 +1,18 @@
-
+{
+  "train_micro_batch_size_per_gpu": 1,
+  "gradient_accumulation_steps": 1,
+  "fp16": {
+    "enabled": true,
+    "loss_scale": 0,
+    "initial_scale_power": 32
+  },
+  "zero_optimization": {
+    "stage": 3
+  },
+  "tensor_parallel": {
+    "tp_size": 1
+  },
+  "pipeline_parallel": {
+    "pp_size": 1
+  }
+}
