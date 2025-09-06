@@ -1,1 +1,10 @@
-
+fastapi
+uvicorn[standard]
+transformers>=4.30.0
+torch
+sentencepiece
+protobuf
+accelerate  # optional; required if you use accelerate/deepspeed
+deepspeed   # optional; required if using deepspeed inference
+httpx
+pydantic
