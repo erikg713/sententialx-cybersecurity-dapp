@@ -1,1 +1,30 @@
+# docker/Dockerfile.modelserver
+# GPU-optimized base image. Use the tag that matches your cluster drivers.
+FROM nvcr.io/nvidia/pytorch:24.03-py3
 
+ENV PYTHONUNBUFFERED=1
+WORKDIR /srv
+
+# System deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git gcc g++ libsndfile1 ffmpeg ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copy model server
+COPY ./services/model_server /srv/services/model_server
+
+# Install python deps
+RUN python -m pip install --upgrade pip setuptools wheel
+RUN pip install -r /srv/services/model_server/requirements.txt
+
+# Create models folder to be mounted from PVC
+RUN mkdir -p /models && chown -R 1000:1000 /models
+VOLUME ["/models"]
+
+EXPOSE 8080
+
+ENV MODEL_DIR=/models
+ENV MODEL_NAME=70b
+ENV PORT=8080
+
+CMD ["uvicorn", "model_server:app", "--host", "0.0.0.0", "--port", "8080", "--workers", "1"]
