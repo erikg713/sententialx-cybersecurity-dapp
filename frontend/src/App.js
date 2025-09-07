@@ -1,41 +1,44 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import DashboardPage from "./pages/DashboardPage";
-import ThreatFeedPage from "./pages/ThreatFeedPage";
-import PaymentsPage from "./pages/PaymentsPage";
-import KYCPage from "./pages/KYCPage";
+import React, { useState, useEffect, lazy, Suspense, useMemo, useCallback, useContext } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
-function App() {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/threats" element={<ThreatFeedPage />} />
-        <Route path="/payments" element={<PaymentsPage />} />
-        <Route path="/kyc" element={<KYCPage />} />
-      </Routes>
-    </Router>
-  );
-}
+/*
+  Lazy-load route pages to reduce initial bundle size.
+  The original file mixed two different App implementations in one file;
+  this file consolidates them into a single, well-structured App component.
+*/
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const ThreatFeedPage = lazy(() => import("./pages/ThreatFeedPage"));
+const PaymentsPage = lazy(() => import("./pages/PaymentsPage"));
+const KYCPage = lazy(() => import("./pages/KYCPage"));
 
-export default App;
-
-import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
-
-// Lazy-load heavy UI parts to speed up initial bundle parsing.
-const Dashboard = lazy(() => import('./components/Dashboard'));
-const Login = lazy(() => import('./components/Login'));
-
-// Simple auth context so child components can read/update auth state without prop drilling.
+/* Auth context for easy access to auth state throughout the app */
 export const AuthContext = React.createContext({
   user: null,
   setUser: () => {},
   logout: () => {},
 });
 
-// Minimal error boundary to avoid blank app on runtime errors.
+const STORAGE_KEY = "sx_user";
+
+/* Small utility to safely parse JSON from localStorage */
+function safeParseJSON(raw) {
+  try {
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+/* Minimal Error Boundary so runtime errors don't blank the whole app */
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -47,7 +50,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // In a real app we'd log this to an external service.
+    // Production: send this to an error-tracking service
     // console.error('ErrorBoundary caught:', error, info);
   }
 
@@ -64,89 +67,198 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-function App() {
-  // user: null when anonymous, otherwise an object/string representing the authenticated user.
-  const [user, setUser] = useState(null);
+/* Hooked component used to protect routes that require authentication */
+function RequireAuth({ children }) {
+  const { user } = useContext(AuthContext);
+  const location = useLocation();
+
+  if (!user) {
+    // Redirect to login and keep the current location for post-login redirect
+    return <Navigate to="/" replace state={{ from: location }} />;
+  }
+
+  return children;
+}
+
+function Header({ isAuthenticated, user, onLogout }) {
+  return (
+    <header
+      className="header"
+      role="banner"
+      style={{
+        padding: "1rem 1.25rem",
+        borderBottom: "1px solid rgba(0,0,0,0.06)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <div>
+        <h1 style={{ margin: 0, fontSize: "1.25rem" }}>Sentenial X</h1>
+        <p style={{ margin: 0, color: "rgba(0,0,0,0.6)", fontSize: ".9rem" }}>
+          The Ultimate Cyber Guardian
+        </p>
+      </div>
+
+      <nav aria-label="Primary" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <Link to="/" style={{ fontSize: ".9rem", color: "inherit", textDecoration: "none" }}>
+          Home
+        </Link>
+        {isAuthenticated && (
+          <>
+            <Link to="/dashboard" style={{ fontSize: ".9rem", color: "inherit", textDecoration: "none" }}>
+              Dashboard
+            </Link>
+            <Link to="/threats" style={{ fontSize: ".9rem", color: "inherit", textDecoration: "none" }}>
+              Threats
+            </Link>
+            <Link to="/payments" style={{ fontSize: ".9rem", color: "inherit", textDecoration: "none" }}>
+              Payments
+            </Link>
+            <Link to="/kyc" style={{ fontSize: ".9rem", color: "inherit", textDecoration: "none" }}>
+              KYC
+            </Link>
+          </>
+        )}
+
+        <div aria-live="polite" style={{ fontSize: ".9rem", color: "rgba(0,0,0,0.6)" }}>
+          {isAuthenticated ? (
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <span>
+                Signed in as <strong>{typeof user === "string" ? user : user?.name ?? "user"}</strong>
+              </span>
+              <button
+                onClick={onLogout}
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid rgba(0,0,0,0.08)",
+                  background: "#fff",
+                  cursor: "pointer",
+                }}
+                aria-label="Sign out"
+                type="button"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <span>Not signed in</span>
+          )}
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+function AppRouter() {
+  const { user } = useContext(AuthContext);
   const isAuthenticated = Boolean(user);
 
-  // Hydrate auth state from localStorage so refresh keeps the session visually consistent.
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('sx_user');
-      if (raw) {
-        setUser(JSON.parse(raw));
-      }
-    } catch {
-      // ignore parse/localStorage errors; start unauthenticated
-      setUser(null);
-    }
-  }, []);
+  return (
+    <Suspense fallback={<div style={{ padding: 12 }}>Loading interface…</div>}>
+      <Routes>
+        {/* Login route: redirect to dashboard if already authenticated */}
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        />
 
-  // Keep localStorage in sync whenever user changes.
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth>
+              <DashboardPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/threats"
+          element={
+            <RequireAuth>
+              <ThreatFeedPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <RequireAuth>
+              <PaymentsPage />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/kyc"
+          element={
+            <RequireAuth>
+              <KYCPage />
+            </RequireAuth>
+          }
+        />
+
+        {/* Fallback for unknown routes */}
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />} />
+      </Routes>
+    </Suspense>
+  );
+}
+
+function App() {
+  const [user, setUser] = useState(() => safeParseJSON(localStorage.getItem(STORAGE_KEY)));
+
+  // Keep localStorage in sync and gracefully ignore storage errors
   useEffect(() => {
     try {
-      if (user) localStorage.setItem('sx_user', JSON.stringify(user));
-      else localStorage.removeItem('sx_user');
+      if (user) localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      else localStorage.removeItem(STORAGE_KEY);
     } catch {
-      // ignore storage errors
+      // ignore storage errors (e.g., quota exceeded, private mode)
     }
   }, [user]);
 
-  const logout = () => setUser(null);
+  // Keep auth state in sync across tabs/windows
+  useEffect(() => {
+    const onStorage = (e) => {
+      if (e.key === STORAGE_KEY) {
+        setUser(safeParseJSON(e.newValue));
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-  // Memoize context value to avoid unnecessary re-renders of consumers.
-  const authContextValue = useMemo(() => ({ user, setUser, logout }), [user]);
+  const navigate = useNavigate();
+
+  const logout = useCallback(() => {
+    setUser(null);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    // Send user back to login page
+    navigate("/", { replace: true });
+  }, [navigate]);
+
+  const authContextValue = useMemo(() => ({ user, setUser, logout }), [user, logout]);
+
+  const isAuthenticated = Boolean(user);
 
   return (
     <AuthContext.Provider value={authContextValue}>
       <ErrorBoundary>
-        <div className="app" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-          <header
-            className="header"
-            role="banner"
-            style={{
-              padding: '1rem 1.25rem',
-              borderBottom: '1px solid rgba(0,0,0,0.06)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <div>
-              <h1 style={{ margin: 0, fontSize: '1.25rem' }}>Sentenial X</h1>
-              <p style={{ margin: 0, color: 'rgba(0,0,0,0.6)', fontSize: '.9rem' }}>The Ultimate Cyber Guardian</p>
-            </div>
+        <div className="app" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          {/* Skip link for keyboard users */}
+          <a href="#main" style={{ position: "absolute", left: -9999, top: "auto" }} className="skip-link">
+            Skip to content
+          </a>
 
-            <div aria-live="polite" style={{ fontSize: '.9rem', color: 'rgba(0,0,0,0.6)' }}>
-              {isAuthenticated ? (
-                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                  <span>Signed in as <strong>{typeof user === 'string' ? user : user?.name ?? 'user'}</strong></span>
-                  <button
-                    onClick={logout}
-                    style={{
-                      padding: '6px 10px',
-                      borderRadius: 6,
-                      border: '1px solid rgba(0,0,0,0.08)',
-                      background: '#fff',
-                      cursor: 'pointer',
-                    }}
-                    aria-label="Sign out"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <span>Not signed in</span>
-              )}
-            </div>
-          </header>
+          <Header isAuthenticated={isAuthenticated} user={user} onLogout={logout} />
 
-          <main style={{ flex: 1, padding: '1.25rem' }}>
-            <Suspense fallback={<div style={{ padding: 12 }}>Loading interface…</div>}>
-              {/* Show Dashboard only when authenticated; otherwise show Login.
-                  This keeps the UI focused and reduces unnecessary component mounts. */}
-              {isAuthenticated ? <Dashboard /> : <Login />}
-            </Suspense>
+          <main id="main" style={{ flex: 1, padding: "1.25rem" }}>
+            <AppRouter />
           </main>
         </div>
       </ErrorBoundary>
@@ -154,4 +266,11 @@ function App() {
   );
 }
 
-export default App;
+/* Export the app wrapped in Router at the top level so hooks like useNavigate work */
+export default function AppWithRouter() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+            }
