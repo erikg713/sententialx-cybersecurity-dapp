@@ -1,3 +1,27 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import ThreatFeedPage from "./pages/ThreatFeedPage";
+import PaymentsPage from "./pages/PaymentsPage";
+import KYCPage from "./pages/KYCPage";
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/threats" element={<ThreatFeedPage />} />
+        <Route path="/payments" element={<PaymentsPage />} />
+        <Route path="/kyc" element={<KYCPage />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
 import React, { useState, useEffect, lazy, Suspense, useMemo } from 'react';
 
 // Lazy-load heavy UI parts to speed up initial bundle parsing.
