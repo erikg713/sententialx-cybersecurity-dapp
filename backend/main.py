@@ -3,7 +3,30 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, payments, kyc, ai_routes
 import uvicorn
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api import auth, kyc, payments, threats, dashboard
+from db import database, models
 
+models.Base.metadata.create_all(bind=database.engine)
+
+app = FastAPI(title="Sentenial-X API")
+
+# CORS for frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change to frontend origin in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API routers
+app.include_router(auth.router)
+app.include_router(kyc.router)
+app.include_router(payments.router)
+app.include_router(threats.router)
+app.include_router(dashboard.router)
 app = FastAPI(title="Sentenial-X Backend", version="1.0.0")
 
 # Enable CORS for frontend
