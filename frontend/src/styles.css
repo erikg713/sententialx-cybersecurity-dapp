@@ -298,4 +298,56 @@ img, svg {
   height: 2rem;
 }
 
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  background: #222;
+  color: white;
+  padding: 1rem;
+}
+
+.sidebar {
+  width: 200px;
+  background: #f5f5f5;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+.page-container {
+  padding: 2rem;
+}
+
+.threat-card {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 8px;
+}
+
+.threat-card.high { border-left: 5px solid red; }
+.threat-card.medium { border-left: 5px solid orange; }
+.threat-card.low { border-left: 5px solid green; }
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+}
+
+.input {
+  padding: 0.5rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+}
+
+.btn {
+  padding: 0.7rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 /* End of file */
