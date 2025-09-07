@@ -6,4 +6,7 @@ pydantic
 torch
 deepspeed
 transformers
-deep_infra_sdk  # Placeholder for LLaMA integration
+deep_infra_sdk  
+sqlalchemy
+psycopg2-binary
+python-dotenv
